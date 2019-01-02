@@ -1,0 +1,26 @@
+ext {
+    android = [
+            "compileSdkVersion"        : 28,
+            "applicationId"            : "com.jamie.zyco.pdfer",
+            "minSdkVersion"            : 24,
+            "targetSdkVersion"         : 28,
+            "versionCode"              : 1,
+            "versionName"              : "0.1",
+            "testInstrumentationRunner": "android.support.test.runner.AndroidJUnitRunner"
+    ]
+
+    def lifecycle_version = "1.1.1"
+    dependency = [
+            //kotlin
+            "kotlin"                   : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version",
+            // ViewModel and LiveData
+            "lifecycle"                : "android.arch.lifecycle:extensions:$lifecycle_version",
+            "lifecycle-common"         : "android.arch.lifecycle:common-java8:$lifecycle_version",
+            "lifecycle-reactivestreams": "android.arch.lifecycle:reactivestreams:$lifecycle_version",
+            //tab layout
+            "flyco-tabLayout"          : "com.flyco.tablayout:FlycoTabLayout_Lib:2.1.2@aar",
+            //support design
+            "design"                   : "com.android.support:design:28.0.0",
+
+    ]
+}

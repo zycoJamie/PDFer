@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:orientation="vertical"
+    android:id="@+id/mFrameContainer">
+    <LinearLayout
+        android:id="@+id/mFindPDF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center">
+        <ImageView
+            android:layout_width="@dimen/d70"
+            android:layout_height="@dimen/d70"
+            android:layout_gravity="center_horizontal"
+            android:src="@mipmap/find_pdf"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/find_pdf_text"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/s13"/>
+    </LinearLayout>
+
+</FrameLayout>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">PDFer</string>
+    <string name="splash_title">PDFer\n轻量阅读器</string>
+
+    <!-- none_pdf.xml -->
+    <string name="find_pdf_text">还没有任何一本PDF\n赶紧寻找一本~</string>
+</resources>
