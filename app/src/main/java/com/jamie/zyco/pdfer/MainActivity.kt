@@ -1,5 +1,7 @@
 package com.jamie.zyco.pdfer
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import com.jamie.zyco.pdfer.base.BaseActivity
@@ -23,7 +25,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
         if (SPUtils(Constants.SP_NAME).getInt(Constants.PDF_COUNT, 0) == 0) {
             mViewStub.visibility = View.VISIBLE
             mFindPDF.setOnClickListener {
-
+                sendBroadcast(Intent(Intent.ACTION_MEDIA_MOUNTED))
             }
         }else{
             mViewStub.visibility=View.GONE
