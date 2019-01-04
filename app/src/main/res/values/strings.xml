@@ -4,4 +4,6 @@
 
     <!-- none_pdf.xml -->
     <string name="find_pdf_text">还没有任何一本PDF\n赶紧寻找一本~</string>
+    <string name="dialog_sure_btn">确定</string>
+    <string name="dialog_cancel_btn">取消</string>
 </resources>

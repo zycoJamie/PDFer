@@ -16,5 +16,8 @@
     <dimen name="d200">200dp</dimen>
     <dimen name="d240">240dp</dimen>
     <dimen name="d110">110dp</dimen>
+    <dimen name="d130">130dp</dimen>
+    <dimen name="d180">180dp</dimen>
+    <dimen name="d0">0dp</dimen>
 
 </resources>

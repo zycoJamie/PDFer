@@ -2,9 +2,9 @@ package com.jamie.zyco.pdfer.utils
 
 import android.util.Log
 
-class LogUtils {
+class Zog {
     companion object {
-        val TAG = LogUtils::class.java.simpleName
+        val TAG = Zog::class.java.simpleName
         const val d = 0
         const val i = 1
         const val e = 2
