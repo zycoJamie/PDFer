@@ -3,7 +3,6 @@ package com.jamie.zyco.pdfer
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.os.Environment
-import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import com.jamie.zyco.pdfer.base.BaseActivity
