@@ -4,4 +4,12 @@
     <color name="colorPrimaryDark">#509DEA</color>
     <color name="colorAccent">#509DEA</color>
     <color name="red_pink">#FF4081</color>
+
+    <color name="black_255">#000</color>
+    <color name="black_90">#e000</color>
+    <color name="black_70">#c000</color>
+    <color name="black_50">#8000</color>
+    <color name="black_30">#4000</color>
+    <color name="black_15">#2000</color>
+    <color name="grey">#efefef</color>
 </resources>

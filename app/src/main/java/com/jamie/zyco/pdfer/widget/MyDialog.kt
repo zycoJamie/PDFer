@@ -10,11 +10,11 @@ import com.jamie.zyco.pdfer.R
 import com.jamie.zyco.pdfer.utils.Zog
 import kotlinx.android.synthetic.main.global_dialog.*
 
-class MyDialog(context: Context) : Dialog(context,R.style.Dialog) {
+class MyDialog(context: Context) : Dialog(context, R.style.Dialog) {
 
     var canCancel: Boolean = false
-    var mSureText:String = context.getString(R.string.dialog_sure_btn)
-    var mCancelText:String = context.getString(R.string.dialog_cancel_btn)
+    var mSureText: String = context.getString(R.string.dialog_sure_btn)
+    var mCancelText: String = context.getString(R.string.dialog_cancel_btn)
     var sureListener: View.OnClickListener? = null
     var cancelListener: View.OnClickListener? = null
     var showListener: DialogInterface.OnShowListener? = null
@@ -48,44 +48,44 @@ class MyDialog(context: Context) : Dialog(context,R.style.Dialog) {
 
     override fun show() {
         super.show()
-        Zog.zLog(0,"*** global dialog showing ****")
+        Zog.log(0, "*** global dialog showing ****")
     }
 
     override fun dismiss() {
         super.dismiss()
-        Zog.zLog(0,"*** global dialog dismiss ****")
+        Zog.log(0, "*** global dialog dismiss ****")
     }
 
     class Builder(context: Context) {
-        var dialog:MyDialog?=null
+        var dialog: MyDialog? = null
 
         init {
-            dialog= MyDialog(context)
+            dialog = MyDialog(context)
         }
 
-        fun sure(text:String,clickListener: View.OnClickListener):Builder=apply {
-            dialog?.mSureText=text
-            dialog?.sureListener=clickListener
+        fun sure(text: String, clickListener: View.OnClickListener) = apply {
+            dialog?.mSureText = text
+            dialog?.sureListener = clickListener
         }
 
-        fun cancel(text: String,clickListener: View.OnClickListener):Builder=apply {
-            dialog?.mCancelText=text
-            dialog?.cancelListener=clickListener
+        fun cancel(text: String, clickListener: View.OnClickListener) = apply {
+            dialog?.mCancelText = text
+            dialog?.cancelListener = clickListener
         }
 
-        fun cancelableByOutside(can:Boolean):Builder=apply {
-            dialog?.canCancel=can
+        fun cancelableByOutside(can: Boolean) = apply {
+            dialog?.canCancel = can
         }
 
-        fun showCallback(listener:DialogInterface.OnShowListener):Builder=apply {
-            dialog?.showListener=listener
+        fun showCallback(listener: DialogInterface.OnShowListener) = apply {
+            dialog?.showListener = listener
         }
 
-        fun dismissCallback(listener:DialogInterface.OnDismissListener):Builder=apply {
-            dialog?.dismissListener=listener
+        fun dismissCallback(listener: DialogInterface.OnDismissListener) = apply {
+            dialog?.dismissListener = listener
         }
 
-        fun build():MyDialog=dialog!!
+        fun build(): MyDialog = dialog!!
 
     }
 }

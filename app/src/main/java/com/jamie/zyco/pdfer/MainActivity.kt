@@ -1,50 +1,65 @@
 package com.jamie.zyco.pdfer
 
-import android.content.Intent
+import android.arch.lifecycle.Observer
 import android.os.Bundle
+import android.os.Environment
+import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 import com.jamie.zyco.pdfer.base.BaseActivity
 import com.jamie.zyco.pdfer.base.Constants
 import com.jamie.zyco.pdfer.databinding.ActivityMainBinding
 import com.jamie.zyco.pdfer.listener.clickhandler.MainActivityClickHandler
-import com.jamie.zyco.pdfer.utils.Zog
 import com.jamie.zyco.pdfer.utils.SPUtils
-import com.jamie.zyco.pdfer.widget.MyDialog
+import com.jamie.zyco.pdfer.utils.Zog
+import com.jamie.zyco.pdfer.viewmodel.MainActivityViewModel
+import com.yanzhenjie.permission.AndPermission
+import com.yanzhenjie.permission.Permission
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.none_pdf.*
+import kotlinx.android.synthetic.main.progress_bar.*
+
 
 class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandler {
+
+    private var isFirstSearch = true
+
+    private val viewModel: MainActivityViewModel by lazy {
+        obtainViewModel(this, MainActivityViewModel::class.java)
+    }
+
+    companion object {
+        val TAG = MainActivity::class.java.simpleName
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dataBinding.click = this
         initView()
+        initData()
     }
 
     override fun initView() {
-        if (SPUtils(Constants.SP_NAME).getInt(Constants.PDF_COUNT, 0) == 0) {
-            mViewStub.visibility = View.VISIBLE
-            var dialog:MyDialog?=null
+        Constants.gPdfCount = SPUtils(Constants.SP_NAME).getInt(Constants.PDF_COUNT, 0)
+        if (Constants.gPdfCount == 0) {
+            mViewStub.visibility = View.VISIBLE //viewStub延迟加载布局，当加载一次过后，就会被替换掉，因此不能多次加载(Visible)，否则会报IllegalStateException
             mFindPDF.setOnClickListener {
-                dialog=MyDialog.Builder(this)
-                        .cancelableByOutside(true)
-                        .sure("sure", View.OnClickListener {
-                            Zog.zLog(0,"sure click")
-                        })
-                        .cancel("cancel",View.OnClickListener {
-                            dialog?.dismiss()
-                        })
-                        .build()
-                dialog?.show()
-                //sendBroadcast(Intent(Intent.ACTION_MEDIA_MOUNTED))
+                findPDF()
             }
-        }else{
-            mViewStub.visibility=View.GONE
+        } else {
+            mViewStub.visibility = View.GONE
         }
     }
 
     override fun initData() {
-
+        lifecycle.addObserver(viewModel.lifecycleWatcher)
+        viewModel.isScanOver.observe(this@MainActivity, Observer {
+            if (it!!) {
+                mProgressBarLayout.visibility = View.GONE
+                mDrawer.setIntercepted(false)
+                Zog.log(1, "${System.currentTimeMillis()}")
+            }
+        })
     }
 
     override fun getLayoutId() = R.layout.activity_main
@@ -52,10 +67,32 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
     /** MainActivityClickHandler **/
 
     override fun add(view: View) {
-        Zog.zLog(0, "main-add")
+        Zog.log(0, "main-add")
     }
 
     override fun switchList() {
-        Zog.zLog(0, "main-switchList")
+        Zog.log(0, "main-switchList")
+    }
+
+    override fun findPDF() {
+        AndPermission.with(this)
+                .runtime()
+                .permission(Permission.Group.STORAGE)
+                .onGranted {
+                    //sendBroadcast(Intent(Intent.ACTION_MEDIA_MOUNTED)) android 4.4以前可发送此广播通知扫描文件，4.4以上则只能是系统app才能发送此广播
+                    if (isFirstSearch) {
+                        mViewStubProgressBar.visibility = View.VISIBLE
+                        isFirstSearch = false
+                    } else {
+                        mProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    mDrawer.setIntercepted(true)
+                    Zog.log(1, "${System.currentTimeMillis()}")
+                    viewModel.scheduleScanPdf(Environment.getExternalStorageDirectory().path)
+                }
+                .onDenied {
+                    Toast.makeText(this@MainActivity, "授予相应的权限，APP功能正常工作哦~", Toast.LENGTH_SHORT).show()
+                }
+                .start()
     }
 }

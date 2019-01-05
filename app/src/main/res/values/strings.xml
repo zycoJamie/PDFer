@@ -6,4 +6,5 @@
     <string name="find_pdf_text">还没有任何一本PDF\n赶紧寻找一本~</string>
     <string name="dialog_sure_btn">确定</string>
     <string name="dialog_cancel_btn">取消</string>
+    <string name="progress_bar_hint_text">正在努力帮你寻找</string>
 </resources>

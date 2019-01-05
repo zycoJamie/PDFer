@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- sp -->
+    <dimen name="s15">15sp</dimen>
+    <dimen name="s13">13sp</dimen>
+
+
     <dimen name="d100">100dp</dimen>
     <dimen name="d300">300dp</dimen>
     <dimen name="d60">60dp</dimen>
@@ -7,17 +13,16 @@
     <dimen name="d5">5dp</dimen>
     <dimen name="d10">10dp</dimen>
     <dimen name="d15">15dp</dimen>
-
-
-    <!-- sp -->
-    <dimen name="s15">15sp</dimen>
     <dimen name="d70">70dp</dimen>
-    <dimen name="s13">13sp</dimen>
     <dimen name="d200">200dp</dimen>
     <dimen name="d240">240dp</dimen>
     <dimen name="d110">110dp</dimen>
     <dimen name="d130">130dp</dimen>
     <dimen name="d180">180dp</dimen>
     <dimen name="d0">0dp</dimen>
+    <dimen name="d50">50dp</dimen>
+    <dimen name="d150">150dp</dimen>
+    <dimen name="d190">190dp</dimen>
+    <dimen name="d7">7dp</dimen>
 
 </resources>

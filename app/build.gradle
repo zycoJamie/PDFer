@@ -38,8 +38,11 @@ dependencies {
     implementation rootProject.ext.dependency["lifecycle"]
     implementation rootProject.ext.dependency["lifecycle-common"]
     implementation rootProject.ext.dependency["lifecycle-reactivestreams"]
+    implementation rootProject.ext.dependency["workManager"]
+    implementation rootProject.ext.dependency["workManager-support-rxjava2"]
     implementation rootProject.ext.dependency["flyco-tabLayout"]
     implementation rootProject.ext.dependency["design"]
+    implementation rootProject.ext.dependency["AndPermission"]
 }
 repositories {
     mavenCentral()

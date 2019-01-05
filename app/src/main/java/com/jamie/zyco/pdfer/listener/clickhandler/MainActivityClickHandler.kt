@@ -5,4 +5,5 @@ import android.view.View
 interface MainActivityClickHandler {
     fun add(view: View)
     fun switchList()
+    fun findPDF()
 }
