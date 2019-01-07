@@ -2,6 +2,9 @@ package com.jamie.zyco.pdfer.viewmodel
 
 import android.arch.lifecycle.*
 import com.jamie.zyco.pdfer.base.Constants
+import com.jamie.zyco.pdfer.base.MyApplication
+import com.jamie.zyco.pdfer.model.database.factory.DAOFactory
+import com.jamie.zyco.pdfer.model.entity.db.PdfDocument
 import com.jamie.zyco.pdfer.utils.Zog
 import java.io.File
 import java.util.concurrent.Executors
@@ -39,6 +42,9 @@ class MainActivityViewModel : ViewModel() {
             }
         } else if (file.path.endsWith(".pdf", true)) {
             Zog.log(1, file.path)
+            val size = file.length() / (8 * 1024)
+            val document = PdfDocument(file.path, size, null, null)
+            DAOFactory.getPdfDocumentDAO().insertAll(document)
         }
 
     }

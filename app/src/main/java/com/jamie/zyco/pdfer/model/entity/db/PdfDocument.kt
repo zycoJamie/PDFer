@@ -13,7 +13,7 @@ data class PdfDocument(
         @ColumnInfo(name = "SIZE")
         var size: Long,
         @ColumnInfo(name = "OPEN")
-        var lastOpen: Long,
+        var lastOpen: Long?,
         @ColumnInfo(name = "COVER")
-        var cover: String
+        var cover: String?
 )
