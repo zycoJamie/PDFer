@@ -16,6 +16,8 @@ class MainActivityViewModel : ViewModel() {
 
     private var executor: ThreadPoolExecutor? = null
     val isScanOver: MutableLiveData<Boolean> = MutableLiveData()
+    val mPdfList: MutableLiveData<MutableList<PdfDocument>> = MutableLiveData()
+    private val tempPdfList: ArrayList<PdfDocument> = ArrayList()
 
     //观察MainActivity的生命周期，当Activity进入销毁阶段时，执行资源回收逻辑
     val lifecycleWatcher = object : DefaultLifecycleObserver {
@@ -42,9 +44,9 @@ class MainActivityViewModel : ViewModel() {
             }
         } else if (file.path.endsWith(".pdf", true)) {
             Zog.log(1, file.path)
-            val size = file.length() / (8 * 1024)
-            val document = PdfDocument(file.path, size, null, null)
-            DAOFactory.getPdfDocumentDAO().insertAll(document)
+            val size = (Math.floor((file.length() * 100 / (1024f * 1024f)).toDouble())) / 100f
+            val document = PdfDocument(file.path, size.toFloat(), null, null)
+            tempPdfList.add(document)
         }
 
     }
@@ -71,8 +73,17 @@ class MainActivityViewModel : ViewModel() {
             while (true) {
                 if (executor!!.isTerminated) {
                     isScanOver.postValue(true)
+                    mPdfList.postValue(tempPdfList.toMutableList())
                     break
                 }
+            }
+        }).start()
+    }
+
+    fun save2Database() {
+        Thread(Runnable {
+            tempPdfList.forEach {
+                DAOFactory.getPdfDocumentDAO().insertAll(it)
             }
         }).start()
     }

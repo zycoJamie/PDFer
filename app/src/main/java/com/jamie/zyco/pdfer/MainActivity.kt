@@ -3,12 +3,15 @@ package com.jamie.zyco.pdfer
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.os.Environment
+import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.Toast
 import com.jamie.zyco.pdfer.base.BaseActivity
 import com.jamie.zyco.pdfer.base.Constants
 import com.jamie.zyco.pdfer.databinding.ActivityMainBinding
 import com.jamie.zyco.pdfer.listener.clickhandler.MainActivityClickHandler
+import com.jamie.zyco.pdfer.model.entity.db.PdfDocument
+import com.jamie.zyco.pdfer.ui.adapter.PdfListAdapter
 import com.jamie.zyco.pdfer.utils.SPUtils
 import com.jamie.zyco.pdfer.utils.Zog
 import com.jamie.zyco.pdfer.viewmodel.MainActivityViewModel
@@ -41,13 +44,24 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
     override fun initView() {
         Constants.gPdfCount = SPUtils(Constants.SP_NAME).getInt(Constants.PDF_COUNT, 0)
         if (Constants.gPdfCount == 0) {
+            Zog.log(0, "none pdf")
             mViewStub.visibility = View.VISIBLE //viewStub延迟加载布局，当加载一次过后，就会被替换掉，因此不能多次加载(Visible)，否则会报IllegalStateException
             mFindPDF.setOnClickListener {
                 findPDF()
             }
+            mPdfRv.visibility = View.GONE
+            mBottomLl.visibility = View.GONE
         } else {
+            Zog.log(0, "exist pdf")
             mViewStub.visibility = View.GONE
+            mPdfRv.visibility = View.VISIBLE
+            mBottomLl.visibility = View.VISIBLE
         }
+        viewModel.mPdfList.value = MutableList(0) {
+            PdfDocument("null", 0f, null, null)
+        }
+        mPdfRv.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        mPdfRv.adapter = PdfListAdapter(R.layout.item_pdf_list, viewModel.mPdfList.value!!)
     }
 
     override fun initData() {
@@ -57,6 +71,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
                 mProgressBarLayout.visibility = View.GONE
                 mDrawer.setIntercepted(false)
                 Zog.log(1, "${System.currentTimeMillis()}")
+            }
+        })
+        updatePdfList()
+    }
+
+    private fun updatePdfList() {
+        viewModel.mPdfList.observe(this@MainActivity, Observer {
+            if (it != null) {
+                (mPdfRv.adapter as PdfListAdapter).data = it
+                mPdfRv.adapter?.notifyDataSetChanged()
+                if (mFrameContainer != null && mPdfRv.adapter!!.itemCount > 0) {
+                    Zog.log(0, "hide none pdf layout")
+                    mFrameContainer.visibility = View.GONE
+                    mPdfRv.visibility = View.VISIBLE
+                    mBottomLl.visibility = View.VISIBLE
+                    viewModel.save2Database()
+                }
             }
         })
     }
@@ -90,7 +121,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
                     viewModel.scheduleScanPdf(Environment.getExternalStorageDirectory().path)
                 }
                 .onDenied {
-                    Toast.makeText(this@MainActivity, "授予相应的权限，APP功能正常工作哦~", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "授予相应的权限，APP才能正常使用哦~", Toast.LENGTH_SHORT).show()
                 }
                 .start()
     }

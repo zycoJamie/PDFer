@@ -24,5 +24,7 @@
     <dimen name="d150">150dp</dimen>
     <dimen name="d190">190dp</dimen>
     <dimen name="d7">7dp</dimen>
+    <dimen name="d25">25dp</dimen>
+    <dimen name="d40">40dp</dimen>
 
 </resources>

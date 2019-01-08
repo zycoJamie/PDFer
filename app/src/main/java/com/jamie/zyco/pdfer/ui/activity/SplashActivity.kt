@@ -28,6 +28,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
         val handler = Handler()
         handler.postDelayed({
             go2Activity(this@SplashActivity, MainActivity::class.java)
+            this@SplashActivity.finish()
         }, 2500)
     }
 
