@@ -4,8 +4,11 @@ class Constants {
     companion object {
         @JvmField
         var gPdfCount = 0
+        @JvmField
+        var gDirCount = 2
         const val SP_NAME = "pdfer_sp_1"
         const val PDF_COUNT = "PDF_COUNT"
+        const val DIR_COUNT = "DIR_COUNT"
         const val ACTION_SCANNER = "ACTION_SCANNER"
         @JvmField
         val CPU_COUNT = Runtime.getRuntime().availableProcessors()

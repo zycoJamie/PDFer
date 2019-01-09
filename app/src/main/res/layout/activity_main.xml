@@ -23,7 +23,7 @@
                 android:layout_height="@dimen/d50"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/mPdfRv">
+                app:layout_constraintTop_toBottomOf="@id/mViewPager">
                 <ImageView
                     android:layout_width="@dimen/d0"
                     android:layout_height="match_parent"
@@ -59,15 +59,14 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/mPdfRv"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+            <android.support.v4.view.ViewPager
+                android:id="@+id/mViewPager"
+                android:layout_width="@dimen/d0"
+                android:layout_height="@dimen/d0"
                 app:layout_constraintTop_toBottomOf="@id/mTabLayout"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/mBottomLl"
-                tools:ignore="RtlHardcoded" />
+                app:layout_constraintBottom_toTopOf="@id/mBottomLl"/>
 
             <ViewStub
                 android:id="@+id/mViewStubProgressBar"
