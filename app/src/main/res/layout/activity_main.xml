@@ -63,6 +63,7 @@
                 android:id="@+id/mViewPager"
                 android:layout_width="@dimen/d0"
                 android:layout_height="@dimen/d0"
+                android:background="@android:color/white"
                 app:layout_constraintTop_toBottomOf="@id/mTabLayout"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"

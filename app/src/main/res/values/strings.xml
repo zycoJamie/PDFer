@@ -7,4 +7,6 @@
     <string name="dialog_sure_btn">确定</string>
     <string name="dialog_cancel_btn">取消</string>
     <string name="progress_bar_hint_text">正在努力帮你寻找</string>
+    <string name="quickly_scan">快速扫描</string>
+    <string name="slowly_scan">完整扫描</string>
 </resources>

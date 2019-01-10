@@ -114,7 +114,7 @@ class MainActivityViewModel : ViewModel() {
     }
 
     fun savePdfCount2SP() {
-        SPUtils(Constants.SP_NAME).putInt(Constants.PDF_COUNT, tempPdfList.size)
+        SPUtils(Constants.SP_NAME).putInt(Constants.PDF_COUNT, mPdfListLiveData.value!!.size)
     }
 
 }
