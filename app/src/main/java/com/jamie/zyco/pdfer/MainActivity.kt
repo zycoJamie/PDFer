@@ -78,13 +78,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
 
     private fun hasPdfLayout() {
         Zog.log(0, "exist pdf")
+        viewModel.get4Database()
         mViewStub?.visibility = View.GONE
         mViewPager.visibility = View.VISIBLE
         mBottomLl.visibility = View.VISIBLE
     }
 
     private fun updatePdfList() {
-        viewModel.mPdfList.observe(this@MainActivity, Observer {
+        viewModel.mPdfListLiveData.observe(this@MainActivity, Observer {
             Zog.log(0, "hide none pdf layout")
             showTab()
             (mCurrentView?.adapter as PdfListAdapter).data = it!!
@@ -93,7 +94,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
             mViewPager.visibility = View.VISIBLE
             mBottomLl.visibility = View.VISIBLE
             viewModel.save2Database()
-
+            viewModel.savePdfCount2SP()
         })
     }
 

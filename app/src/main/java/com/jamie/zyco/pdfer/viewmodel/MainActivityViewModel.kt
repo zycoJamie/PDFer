@@ -1,9 +1,6 @@
 package com.jamie.zyco.pdfer.viewmodel
 
-import android.arch.lifecycle.DefaultLifecycleObserver
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.*
 import com.jamie.zyco.pdfer.base.Constants
 import com.jamie.zyco.pdfer.model.database.factory.DAOFactory
 import com.jamie.zyco.pdfer.model.entity.db.PdfDocument
@@ -19,8 +16,13 @@ class MainActivityViewModel : ViewModel() {
 
     private var executor: ThreadPoolExecutor? = null
     val isScanOver: MutableLiveData<Boolean> = MutableLiveData()
-    val mPdfList: MutableLiveData<MutableList<PdfDocument>> = MutableLiveData()
-    private val tempPdfList: ArrayList<PdfDocument> = ArrayList()
+    var mPdfListLiveData: MutableLiveData<MutableList<PdfDocument>> = MutableLiveData()
+    private val tempPdfList: ArrayList<PdfDocument> by lazy {
+        //第一次扫描文件时用到的临时list
+        ArrayList<PdfDocument>()
+    }
+    private var mObserveDatabaseLiveData: LiveData<MutableList<PdfDocument>>? = null
+    private var mObserver: Observer<MutableList<PdfDocument>> = Observer { it -> mPdfListLiveData.value = it!! }
     val mPdfCountLiveData: MutableLiveData<Int> = MutableLiveData()
     val mDirCountLiveData: MutableLiveData<Int> = MutableLiveData()
 
@@ -36,6 +38,7 @@ class MainActivityViewModel : ViewModel() {
 
         override fun onDestroy(owner: LifecycleOwner) {
             executor?.shutdownNow()
+            mObserveDatabaseLiveData?.removeObserver(mObserver)
         }
     }
 
@@ -87,7 +90,7 @@ class MainActivityViewModel : ViewModel() {
                 if (executor!!.isTerminated) {
                     isScanOver.postValue(true)
                     if (tempPdfList.size > 0) {
-                        mPdfList.postValue(tempPdfList.toMutableList())
+                        mPdfListLiveData.postValue(tempPdfList.toMutableList())
                     }
                     break
                 }
@@ -101,6 +104,17 @@ class MainActivityViewModel : ViewModel() {
                 DAOFactory.getPdfDocumentDAO().insertAll(it)
             }
         }).start()
+    }
+
+    fun get4Database() {
+        Thread(Runnable {
+            mObserveDatabaseLiveData = DAOFactory.getPdfDocumentDAO().queryAll()
+            mObserveDatabaseLiveData?.observeForever(mObserver)
+        }).start()
+    }
+
+    fun savePdfCount2SP() {
+        SPUtils(Constants.SP_NAME).putInt(Constants.PDF_COUNT, tempPdfList.size)
     }
 
 }
