@@ -14,6 +14,7 @@ class MainViewPagerAdapter(var list: MutableList<View>) : PagerAdapter() {
     override fun getCount() = list.size
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
+        container.addView(list[position])
         return list[position]
     }
 

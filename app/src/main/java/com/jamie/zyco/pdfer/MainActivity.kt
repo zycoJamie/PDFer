@@ -4,6 +4,8 @@ import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.os.Environment
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import com.jamie.zyco.pdfer.base.BaseActivity
@@ -29,6 +31,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
     private var isFirstSearch = true
     private var mViewList: ArrayList<View>? = ArrayList()
     private var mTitleList: ArrayList<String>? = ArrayList()
+    private var mCurrentView: RecyclerView? = null
 
     private val viewModel: MainActivityViewModel by lazy {
         obtainViewModel(this, MainActivityViewModel::class.java)
@@ -47,7 +50,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
 
     override fun initView() {
         Constants.gPdfCount = SPUtils(Constants.SP_NAME).getInt(Constants.PDF_COUNT, 0)
-        Constants.gDirCount = SPUtils(Constants.SP_NAME).getInt(Constants.DIR_COUNT, 0)
+        Constants.gDirCount = SPUtils(Constants.SP_NAME).getInt(Constants.DIR_COUNT, 2)
         if (Constants.gPdfCount == 0) {
             Zog.log(0, "none pdf")
             mViewStub.visibility = View.VISIBLE //viewStub延迟加载布局，当加载一次过后，就会被替换掉，因此不能多次加载(Visible)，否则会报IllegalStateException
@@ -78,16 +81,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
     }
 
     private fun updatePdfList() {
+        showTab()
         viewModel.mPdfList.observe(this@MainActivity, Observer {
             if (it != null) {
-                (mPdfRv.adapter as PdfListAdapter).data = it
-                mPdfRv.adapter?.notifyDataSetChanged()
-                if (mFrameContainer != null && mPdfRv.adapter!!.itemCount > 0) {
+                (mCurrentView?.adapter as PdfListAdapter).data = it
+                mCurrentView?.adapter?.notifyDataSetChanged()
+                if (mFrameContainer != null && mCurrentView?.adapter!!.itemCount > 0) {
                     Zog.log(0, "hide none pdf layout")
                     mFrameContainer.visibility = View.GONE
                     mViewPager.visibility = View.VISIBLE
                     mBottomLl.visibility = View.VISIBLE
-                    showTab()
                     viewModel.save2Database()
                 }
             }
@@ -96,17 +99,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
 
     private fun showTab() {
         for (i in 0 until Constants.gDirCount) {
-            mViewList?.add(mPdfRv)
+            mViewList?.add(LayoutInflater.from(this).inflate(R.layout.item_view_pager, mViewPager, false))
         }
         mTitleList!!.add("我的文件")
         mTitleList!!.add("最近")
         mViewPager.adapter = MainViewPagerAdapter(mViewList!!)
         mTabLayout.setViewPager(mViewPager, mTitleList!!.toArray(arrayOfNulls(mTitleList!!.size)))
+        mCurrentView = mViewList!![mViewPager.currentItem] as RecyclerView
         viewModel.mPdfList.value = MutableList(0) {
             PdfDocument("null", 0f, null, null)
         }
-        mPdfRv.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        mPdfRv.adapter = PdfListAdapter(R.layout.item_pdf_list, viewModel.mPdfList.value!!)
+        mCurrentView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        mCurrentView?.adapter = PdfListAdapter(R.layout.item_pdf_list, viewModel.mPdfList.value!!)
 
     }
 
