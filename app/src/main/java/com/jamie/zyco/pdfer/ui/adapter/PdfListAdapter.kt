@@ -8,8 +8,9 @@ import android.view.ViewGroup
 import com.jamie.zyco.pdfer.databinding.ItemPdfListBinding
 import com.jamie.zyco.pdfer.model.entity.db.PdfDocument
 import java.util.*
+import kotlin.collections.ArrayList
 
-class PdfListAdapter(var resId: Int,var data: MutableList<PdfDocument>) : RecyclerView.Adapter<PdfListAdapter.Holder>() {
+class PdfListAdapter(var resId: Int, var data: MutableList<PdfDocument> = ArrayList()) : RecyclerView.Adapter<PdfListAdapter.Holder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, type: Int): Holder {
         val binding: ItemPdfListBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), resId, parent, false)

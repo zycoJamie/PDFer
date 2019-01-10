@@ -1,10 +1,13 @@
 package com.jamie.zyco.pdfer.viewmodel
 
-import android.arch.lifecycle.*
+import android.arch.lifecycle.DefaultLifecycleObserver
+import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.ViewModel
 import com.jamie.zyco.pdfer.base.Constants
-import com.jamie.zyco.pdfer.base.MyApplication
 import com.jamie.zyco.pdfer.model.database.factory.DAOFactory
 import com.jamie.zyco.pdfer.model.entity.db.PdfDocument
+import com.jamie.zyco.pdfer.utils.SPUtils
 import com.jamie.zyco.pdfer.utils.Zog
 import java.io.File
 import java.util.concurrent.Executors
@@ -18,9 +21,19 @@ class MainActivityViewModel : ViewModel() {
     val isScanOver: MutableLiveData<Boolean> = MutableLiveData()
     val mPdfList: MutableLiveData<MutableList<PdfDocument>> = MutableLiveData()
     private val tempPdfList: ArrayList<PdfDocument> = ArrayList()
+    val mPdfCountLiveData: MutableLiveData<Int> = MutableLiveData()
+    val mDirCountLiveData: MutableLiveData<Int> = MutableLiveData()
 
     //观察MainActivity的生命周期，当Activity进入销毁阶段时，执行资源回收逻辑
     val lifecycleWatcher = object : DefaultLifecycleObserver {
+
+        override fun onCreate(owner: LifecycleOwner) {
+            Constants.gPdfCount = SPUtils(Constants.SP_NAME).getInt(Constants.PDF_COUNT, 0)
+            Constants.gDirCount = SPUtils(Constants.SP_NAME).getInt(Constants.DIR_COUNT, 2)
+            mPdfCountLiveData.value = Constants.gPdfCount
+            mDirCountLiveData.value = Constants.gDirCount
+        }
+
         override fun onDestroy(owner: LifecycleOwner) {
             executor?.shutdownNow()
         }
@@ -73,7 +86,9 @@ class MainActivityViewModel : ViewModel() {
             while (true) {
                 if (executor!!.isTerminated) {
                     isScanOver.postValue(true)
-                    mPdfList.postValue(tempPdfList.toMutableList())
+                    if (tempPdfList.size > 0) {
+                        mPdfList.postValue(tempPdfList.toMutableList())
+                    }
                     break
                 }
             }

@@ -12,16 +12,13 @@ import com.jamie.zyco.pdfer.base.BaseActivity
 import com.jamie.zyco.pdfer.base.Constants
 import com.jamie.zyco.pdfer.databinding.ActivityMainBinding
 import com.jamie.zyco.pdfer.listener.clickhandler.MainActivityClickHandler
-import com.jamie.zyco.pdfer.model.entity.db.PdfDocument
 import com.jamie.zyco.pdfer.ui.adapter.MainViewPagerAdapter
 import com.jamie.zyco.pdfer.ui.adapter.PdfListAdapter
-import com.jamie.zyco.pdfer.utils.SPUtils
 import com.jamie.zyco.pdfer.utils.Zog
 import com.jamie.zyco.pdfer.viewmodel.MainActivityViewModel
 import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.Permission
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.item_view_pager.*
 import kotlinx.android.synthetic.main.none_pdf.*
 import kotlinx.android.synthetic.main.progress_bar.*
 
@@ -44,32 +41,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dataBinding.click = this
+        lifecycle.addObserver(viewModel.lifecycleWatcher)
         initView()
         initData()
     }
 
     override fun initView() {
-        Constants.gPdfCount = SPUtils(Constants.SP_NAME).getInt(Constants.PDF_COUNT, 0)
-        Constants.gDirCount = SPUtils(Constants.SP_NAME).getInt(Constants.DIR_COUNT, 2)
-        if (Constants.gPdfCount == 0) {
-            Zog.log(0, "none pdf")
-            mViewStub.visibility = View.VISIBLE //viewStub延迟加载布局，当加载一次过后，就会被替换掉，因此不能多次加载(Visible)，否则会报IllegalStateException
-            mFindPDF.setOnClickListener {
-                findPDF()
+        viewModel.mPdfCountLiveData.observe(this@MainActivity, Observer {
+            when (it!!) {
+                0 -> nonePdfLayout()
+                else -> hasPdfLayout()
             }
-            mViewPager.visibility = View.GONE
-            mBottomLl.visibility = View.GONE
-        } else {
-            Zog.log(0, "exist pdf")
-            mViewStub.visibility = View.GONE
-            mViewPager.visibility = View.VISIBLE
-            showTab()
-            mBottomLl.visibility = View.VISIBLE
-        }
+        })
     }
 
     override fun initData() {
-        lifecycle.addObserver(viewModel.lifecycleWatcher)
         viewModel.isScanOver.observe(this@MainActivity, Observer {
             if (it!!) {
                 mProgressBarLayout.visibility = View.GONE
@@ -80,20 +66,34 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
         updatePdfList()
     }
 
+    private fun nonePdfLayout() {
+        Zog.log(0, "none pdf")
+        mViewStub.visibility = View.VISIBLE //viewStub延迟加载布局，当加载一次过后，就会被替换掉，因此不能多次加载(Visible)，否则会报IllegalStateException
+        mFindPDF.setOnClickListener {
+            findPDF()
+        }
+        mViewPager.visibility = View.GONE
+        mBottomLl.visibility = View.GONE
+    }
+
+    private fun hasPdfLayout() {
+        Zog.log(0, "exist pdf")
+        mViewStub?.visibility = View.GONE
+        mViewPager.visibility = View.VISIBLE
+        mBottomLl.visibility = View.VISIBLE
+    }
+
     private fun updatePdfList() {
-        showTab()
         viewModel.mPdfList.observe(this@MainActivity, Observer {
-            if (it != null) {
-                (mCurrentView?.adapter as PdfListAdapter).data = it
-                mCurrentView?.adapter?.notifyDataSetChanged()
-                if (mFrameContainer != null && mCurrentView?.adapter!!.itemCount > 0) {
-                    Zog.log(0, "hide none pdf layout")
-                    mFrameContainer.visibility = View.GONE
-                    mViewPager.visibility = View.VISIBLE
-                    mBottomLl.visibility = View.VISIBLE
-                    viewModel.save2Database()
-                }
-            }
+            Zog.log(0, "hide none pdf layout")
+            showTab()
+            (mCurrentView?.adapter as PdfListAdapter).data = it!!
+            mCurrentView?.adapter?.notifyDataSetChanged()
+            mFrameContainer?.visibility = View.GONE
+            mViewPager.visibility = View.VISIBLE
+            mBottomLl.visibility = View.VISIBLE
+            viewModel.save2Database()
+
         })
     }
 
@@ -106,11 +106,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
         mViewPager.adapter = MainViewPagerAdapter(mViewList!!)
         mTabLayout.setViewPager(mViewPager, mTitleList!!.toArray(arrayOfNulls(mTitleList!!.size)))
         mCurrentView = mViewList!![mViewPager.currentItem] as RecyclerView
-        viewModel.mPdfList.value = MutableList(0) {
-            PdfDocument("null", 0f, null, null)
-        }
         mCurrentView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        mCurrentView?.adapter = PdfListAdapter(R.layout.item_pdf_list, viewModel.mPdfList.value!!)
+        mCurrentView?.adapter = PdfListAdapter(R.layout.item_pdf_list)
 
     }
 
