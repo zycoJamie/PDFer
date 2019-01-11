@@ -112,8 +112,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
         mCurrentView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mCurrentView?.adapter = PdfListAdapter(R.layout.item_pdf_list)
         val firstRecyclerView = mViewList!![0].findViewById(R.id.mPdfRv) as MyRecyclerView
-        val scanOptionView = mViewList!![0].findViewById(R.id.mScanOptionContainer) as LinearLayout
-        firstRecyclerView.setHeadView(scanOptionView)
+
         //firstRecyclerView.addItemDecoration()
     }
 
