@@ -27,5 +27,6 @@
     <dimen name="d25">25dp</dimen>
     <dimen name="d40">40dp</dimen>
     <dimen name="d3">3dp</dimen>
+    <dimen name="d80">80dp</dimen>
 
 </resources>
