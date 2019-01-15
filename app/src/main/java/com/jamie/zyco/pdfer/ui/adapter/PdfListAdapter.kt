@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.jamie.zyco.pdfer.databinding.ItemPdfListBinding
+import com.jamie.zyco.pdfer.databinding.RvHeaderBinding
 import com.jamie.zyco.pdfer.model.entity.db.PdfDocument
 import java.util.*
 import kotlin.collections.ArrayList
@@ -21,14 +22,19 @@ class PdfListAdapter(var resId: Int, var data: MutableList<PdfDocument> = ArrayL
     override fun getItemCount() = data.size
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        if (holder.binding is ItemPdfListBinding) {
-            holder.binding.pdf = data[position]
-            if (data[position].lastOpen != null) {
-                val calendar = Calendar.getInstance()
-                calendar.time = Date(data[position].lastOpen!!)
-                val dateStr = "${calendar.get(Calendar.YEAR)}年${calendar.get(Calendar.MONTH) + 1}月${calendar.get(Calendar.DAY_OF_MONTH)}日" +
-                        "${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}"
-                holder.binding.date = dateStr
+        when (holder.binding) {
+            is ItemPdfListBinding -> {
+                holder.binding.pdf = data[position]
+                if (data[position].lastOpen != null) {
+                    val calendar = Calendar.getInstance()
+                    calendar.time = Date(data[position].lastOpen!!)
+                    val dateStr = "${calendar.get(Calendar.YEAR)}年${calendar.get(Calendar.MONTH) + 1}月${calendar.get(Calendar.DAY_OF_MONTH)}日" +
+                            "${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}"
+                    holder.binding.date = dateStr
+                }
+            }
+            is RvHeaderBinding -> {
+
             }
         }
     }

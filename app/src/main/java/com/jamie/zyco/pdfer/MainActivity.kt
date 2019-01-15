@@ -4,14 +4,17 @@ import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.os.Environment
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import com.jamie.zyco.pdfer.base.BaseActivity
 import com.jamie.zyco.pdfer.base.Constants
 import com.jamie.zyco.pdfer.databinding.ActivityMainBinding
 import com.jamie.zyco.pdfer.listener.clickhandler.MainActivityClickHandler
+import com.jamie.zyco.pdfer.ui.adapter.HeaderWrapperAdapter
 import com.jamie.zyco.pdfer.ui.adapter.MainViewPagerAdapter
 import com.jamie.zyco.pdfer.ui.adapter.PdfListAdapter
 import com.jamie.zyco.pdfer.utils.Zog
@@ -89,7 +92,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
         viewModel.mPdfListLiveData.observe(this@MainActivity, Observer {
             Zog.log(0, "hide none pdf layout")
             showTab()
-            (mCurrentView?.adapter as PdfListAdapter).data = it!!
+            ((mCurrentView?.adapter as HeaderWrapperAdapter).mInnerAdapter as PdfListAdapter).data = it!!
             mCurrentView?.adapter?.notifyDataSetChanged()
             mFrameContainer?.visibility = View.GONE
             mViewPager.visibility = View.VISIBLE
@@ -110,10 +113,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
         val containerView = mViewList!![mViewPager.currentItem]
         mCurrentView = containerView.findViewById(R.id.mPdfRv) as MyRecyclerView
         mCurrentView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        mCurrentView?.adapter = PdfListAdapter(R.layout.item_pdf_list)
+        mCurrentView?.adapter = HeaderWrapperAdapter(PdfListAdapter(R.layout.item_pdf_list))
         val firstRecyclerView = mViewList!![0].findViewById(R.id.mPdfRv) as MyRecyclerView
-
+        val headerView = createHeaderView(R.layout.rv_header, firstRecyclerView)
+        (firstRecyclerView.adapter as HeaderWrapperAdapter).addHeaders(headerView)
         //firstRecyclerView.addItemDecoration()
+    }
+
+    private fun createHeaderView(resId: Int, container: ViewGroup): View {
+        val headerView = LayoutInflater.from(this@MainActivity).inflate(resId, container, false)
+        headerView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, 0)
+        return headerView
     }
 
     override fun getLayoutId() = R.layout.activity_main

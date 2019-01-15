@@ -8,9 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.jamie.zyco.pdfer.R
 import com.jamie.zyco.pdfer.ui.adapter.PdfListAdapter.Holder
+import com.jamie.zyco.pdfer.utils.Zog
 
 class HeaderWrapperAdapter(adapter: RecyclerView.Adapter<Holder>) : RecyclerView.Adapter<Holder>() {
-    private var mInnerAdapter: RecyclerView.Adapter<Holder> = adapter
+    var mInnerAdapter: RecyclerView.Adapter<Holder> = adapter
     private var headers: SparseArray<View> = SparseArray()
 
     companion object {
@@ -27,6 +28,14 @@ class HeaderWrapperAdapter(adapter: RecyclerView.Adapter<Holder>) : RecyclerView
         headers.put(BASE_ITEM_TYPE + headers.size(), view)
     }
 
+    fun getHeaderItem(index: Int): View? {
+        return if (headers.size() > 0) {
+            headers[BASE_ITEM_TYPE + index]
+        } else {
+            null
+        }
+    }
+
     override fun getItemViewType(position: Int): Int {
         if (isHeaders(position)) {
             return headers.keyAt(position)
@@ -36,6 +45,7 @@ class HeaderWrapperAdapter(adapter: RecyclerView.Adapter<Holder>) : RecyclerView
 
     override fun onCreateViewHolder(container: ViewGroup, type: Int): Holder {
         if (headers[type] != null) {
+            Zog.log(0, "header viewHolder created")
             return Holder(headers[type], DataBindingUtil.inflate(LayoutInflater.from(container.context), R.layout.rv_header, container, false))
         }
         return mInnerAdapter.onCreateViewHolder(container, type)
@@ -43,7 +53,7 @@ class HeaderWrapperAdapter(adapter: RecyclerView.Adapter<Holder>) : RecyclerView
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         if (isHeaders(position)) {
-            return
+            return mInnerAdapter.onBindViewHolder(holder, position)
         }
         return mInnerAdapter.onBindViewHolder(holder, position - headers.size())
     }
