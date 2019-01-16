@@ -16,12 +16,17 @@ class MyRecyclerView : RecyclerView {
         val TAG = MyRecyclerView::class.java.simpleName
     }
 
-    private val mFriction = 3f  //阻力系数
+    private val mFriction = 2.5f  //阻力系数
     private var initPointY: Float = 0f
     private var mHeaderHeight = 0
     private val mThreshold = 400  //header最大高度
     private val mAutoScrollThreshold = 150 //触发header自动滑动的最大高度
     private var isExtension = false
+    private var mBackByFinger = false
+    private var isFirstDragging = true
+    //问题：当header处于展开状态，手指上划，滑动距离超过header高度 通过scroller动态缩小header高度时 出现了向下回弹
+    // 解决思路：当最终松手时，若滑动距离超过header高度，直接修改header高度为0
+    private var mBackByFingerDistance = 0
     private val mScroller: Scroller by lazy {
         Scroller(context)
     }
@@ -41,6 +46,7 @@ class MyRecyclerView : RecyclerView {
         when (e!!.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 initPointY = e.rawY
+                isFirstDragging = true
                 if (!mScroller.isFinished) {
                     mScroller.forceFinished(true) //当scroller到达final坐标后，并未立即结束
                 }
@@ -53,27 +59,49 @@ class MyRecyclerView : RecyclerView {
                         && mHeaderHeight <= mThreshold
                         && headerWrapperAdapter.getHeaderCount() > 0
                         && !isExtension) {
+                    //当首次出现dragging时立即刷新初始Y坐标，避免一开始下拉header时，header就有高度e.rawY - initPointY
+                    if (isFirstDragging) {
+                        initPointY = e.rawY
+                        Zog.log(0, TAG, "first dragging initPointY:$initPointY")
+                        isFirstDragging = false
+                    }
                     Zog.log(0, TAG, "pull")
+                    Zog.log(0, TAG, "e.rawY:${e.rawY} initPointY:$initPointY")
                     move(e)
                 }
-                if (isExtension && e.rawY - initPointY < 0) {
+                if (isExtension && e.rawY - initPointY < 0 && headerWrapperAdapter.getHeaderCount() > 0) {
                     Zog.log(0, TAG, "back")
+                    mBackByFingerDistance = (e.rawY - initPointY).toInt()
                     move(e)
                 }
             }
             MotionEvent.ACTION_UP -> {
                 isExtension = mHeaderHeight >= mAutoScrollThreshold
-                if (mHeaderHeight in mAutoScrollThreshold until mThreshold) {
+                if (mBackByFinger) {
+                    isExtension = false
+                }
+                if (mHeaderHeight in mAutoScrollThreshold until mThreshold && !mBackByFinger) {
                     Zog.log(0, TAG, "start auto pull $mHeaderHeight ****")
                     mScroller.startScroll(0, mHeaderHeight, 0, mThreshold - mHeaderHeight, 500)
                     Zog.log(0, TAG, "finalY ${mScroller.finalY}")
                     invalidate()
                 }
-                if (mHeaderHeight in 1 until mAutoScrollThreshold) {
-                    Zog.log(0, TAG, "start auto back $mHeaderHeight ****")
-                    mScroller.startScroll(0, mHeaderHeight, 0, -mHeaderHeight, 500)
-                    Zog.log(0, TAG, "finalY ${mScroller.finalY}")
-                    invalidate()
+                if (mHeaderHeight in 1 until mAutoScrollThreshold || mBackByFinger) {
+                    val layoutManager = layoutManager as LinearLayoutManager
+                    val headerWrapperAdapter = adapter as HeaderWrapperAdapter
+                    if (mBackByFingerDistance < -mThreshold && layoutManager.findLastVisibleItemPosition() != headerWrapperAdapter.itemCount - 1) {
+                        val header: View? = headerWrapperAdapter.getHeaderItem(0)
+                        val layoutParams = header?.layoutParams
+                        layoutParams?.height = 0
+                        header?.layoutParams = layoutParams
+
+                    } else {
+                        Zog.log(0, TAG, "start auto back $mHeaderHeight ****")
+                        mScroller.startScroll(0, mHeaderHeight, 0, -mHeaderHeight, 500)
+                        Zog.log(0, TAG, "finalY ${mScroller.finalY}")
+                        invalidate()
+                    }
+                    mBackByFingerDistance = 0
                 }
             }
         }
@@ -82,24 +110,25 @@ class MyRecyclerView : RecyclerView {
 
     private fun move(e: MotionEvent) {
         val headerWrapperAdapter = adapter as HeaderWrapperAdapter
-        mHeaderHeight = if (!isExtension) {
-            ((e.rawY - initPointY) / mFriction).toInt()
+        if (!isExtension) {
+            mBackByFinger = false
+            mHeaderHeight = ((e.rawY - initPointY) / mFriction).toInt()
+            Zog.log(0, TAG, "header height:$mHeaderHeight before")
+            val header: View? = headerWrapperAdapter.getHeaderItem(0)
+            val layoutParams = header?.layoutParams
+            if (mHeaderHeight >= mThreshold) {
+                mHeaderHeight = mThreshold
+            }
+            if (mHeaderHeight < 0) {
+                mHeaderHeight = 0
+            }
+            Zog.log(0, TAG, "header height:$mHeaderHeight after")
+            layoutParams?.height = mHeaderHeight
+            header?.layoutParams = layoutParams
+            smoothScrollToPosition(0)
         } else {
-            ((mThreshold - (initPointY - e.rawY))).toInt()
+            mBackByFinger = true
         }
-        Zog.log(0, TAG, "header height:$mHeaderHeight before")
-        val header: View? = headerWrapperAdapter.getHeaderItem(0)
-        val layoutParams = header?.layoutParams
-        if (mHeaderHeight >= mThreshold) {
-            mHeaderHeight = mThreshold
-        }
-        if (mHeaderHeight < 0) {
-            mHeaderHeight = 0
-        }
-        Zog.log(0, TAG, "header height:$mHeaderHeight after")
-        layoutParams?.height = mHeaderHeight
-        header?.layoutParams = layoutParams
-        smoothScrollToPosition(0)
     }
 
     override fun computeScroll() {
