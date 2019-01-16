@@ -17,6 +17,7 @@ import com.jamie.zyco.pdfer.listener.clickhandler.MainActivityClickHandler
 import com.jamie.zyco.pdfer.ui.adapter.HeaderWrapperAdapter
 import com.jamie.zyco.pdfer.ui.adapter.MainViewPagerAdapter
 import com.jamie.zyco.pdfer.ui.adapter.PdfListAdapter
+import com.jamie.zyco.pdfer.ui.decoration.ListDecoration
 import com.jamie.zyco.pdfer.utils.Zog
 import com.jamie.zyco.pdfer.viewmodel.MainActivityViewModel
 import com.jamie.zyco.pdfer.widget.MyRecyclerView
@@ -117,7 +118,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
         val firstRecyclerView = mViewList!![0].findViewById(R.id.mPdfRv) as MyRecyclerView
         val headerView = createHeaderView(R.layout.rv_header, firstRecyclerView)
         (firstRecyclerView.adapter as HeaderWrapperAdapter).addHeaders(headerView)
-        //firstRecyclerView.addItemDecoration()
+        firstRecyclerView.addItemDecoration(ListDecoration())
     }
 
     private fun createHeaderView(resId: Int, container: ViewGroup): View {
