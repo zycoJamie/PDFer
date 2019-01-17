@@ -43,10 +43,14 @@ class HeaderWrapperAdapter(adapter: RecyclerView.Adapter<Holder>) : RecyclerView
         return mInnerAdapter.getItemViewType(position)
     }
 
+    /**
+     * 使用DataBindingUtil.inflate(LayoutInflater.from(container.context), R.layout.rv_header, container, false)
+     * 数据是绑定在binding.root中的，想在已有view中进行数据绑定，需要使用DataBindingUtil.bind()
+     */
     override fun onCreateViewHolder(container: ViewGroup, type: Int): Holder {
         if (headers[type] != null) {
             Zog.log(0, "header viewHolder created")
-            return Holder(headers[type], DataBindingUtil.inflate(LayoutInflater.from(container.context), R.layout.rv_header, container, false))
+            return Holder(headers[type], DataBindingUtil.bind(headers[type])!!)
         }
         return mInnerAdapter.onCreateViewHolder(container, type)
     }

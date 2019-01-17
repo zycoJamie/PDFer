@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
+    <data>
+        <import type="com.jamie.zyco.pdfer.listener.clickhandler.MainActivityClickHandler"/>
+        <variable
+            name="click"
+            type="MainActivityClickHandler"/>
+    </data>
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -10,14 +16,16 @@
         <RelativeLayout
             android:layout_width="@dimen/d0"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:onClick="@{(v)->click.quicklyFound()}">
             <ImageView
                 android:id="@+id/mQuickly"
                 android:layout_width="@dimen/d40"
                 android:layout_height="@dimen/d40"
                 android:layout_centerInParent="true"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/quickly"/>
+                android:src="@mipmap/quickly"
+                android:onClick="@{(v)->click.quicklyFound()}"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -31,14 +39,16 @@
         <RelativeLayout
             android:layout_width="@dimen/d0"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:onClick="@{(v)->click.findPDF()}">
             <ImageView
                 android:id="@+id/mSlowly"
                 android:layout_width="@dimen/d40"
                 android:layout_height="@dimen/d40"
                 android:layout_centerInParent="true"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/slowly"/>
+                android:src="@mipmap/slowly"
+                android:onClick="@{(v)->click.findPDF()}"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

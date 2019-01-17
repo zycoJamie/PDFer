@@ -1,6 +1,10 @@
 package com.jamie.zyco.pdfer.viewmodel
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.*
+import android.content.Context
+import android.util.ArraySet
+import androidx.work.*
 import com.jamie.zyco.pdfer.base.Constants
 import com.jamie.zyco.pdfer.model.database.factory.DAOFactory
 import com.jamie.zyco.pdfer.model.entity.db.PdfDocument
@@ -25,6 +29,8 @@ class MainActivityViewModel : ViewModel() {
     private var mObserver: Observer<MutableList<PdfDocument>> = Observer { it -> mPdfListLiveData.value = it!! }
     val mPdfCountLiveData: MutableLiveData<Int> = MutableLiveData()
     val mDirCountLiveData: MutableLiveData<Int> = MutableLiveData()
+    val mPdfPathLiveData: MutableLiveData<ArrayList<String>> = MutableLiveData()
+    private var mPdfPathList: ArrayList<String> = ArrayList()
 
     //观察MainActivity的生命周期，当Activity进入销毁阶段时，执行资源回收逻辑
     val lifecycleWatcher = object : DefaultLifecycleObserver {
@@ -42,7 +48,7 @@ class MainActivityViewModel : ViewModel() {
         }
     }
 
-    private fun scanPdf(folder: String) {
+    private fun scanPdf(folder: String, scanCurrentDir: Boolean = false) {
         val file = File(folder)
         //判断是否是空文件夹
         if (file.isDirectory && (file.listFiles() == null || file.listFiles().isEmpty())) {
@@ -54,9 +60,18 @@ class MainActivityViewModel : ViewModel() {
             for (f in file.listFiles()) {
                 if (f == null) {
                     //Zog.log(0, "file == null")
-                    return
+                    continue
                 }
-                scanPdf(f.path)
+                if (scanCurrentDir) {
+                    if (f.isFile && f.path.endsWith(".pdf", true)) {
+                        Zog.log(1, "quickly scan ${f.path}")
+                        val size = (Math.floor((f.length() * 100 / (1024f * 1024f)).toDouble())) / 100f
+                        val document = PdfDocument(f.path, size.toFloat(), null, null)
+                        tempPdfList.add(document)
+                    }
+                } else {
+                    scanPdf(f.path)
+                }
             }
         } else if (file.path.endsWith(".pdf", true)) {
             Zog.log(1, file.path)
@@ -71,9 +86,10 @@ class MainActivityViewModel : ViewModel() {
         isScanOver.value = false
         val file = File(folder)
         if (file.listFiles().isEmpty()) {
+            isScanOver.value = true
             return
         }
-        executor = ThreadPoolExecutor(Constants.CORE, Constants.MAX, 10L, TimeUnit.SECONDS,
+        executor = ThreadPoolExecutor(Constants.CORE, Constants.MAX, 2L, TimeUnit.SECONDS,
                 LinkedBlockingDeque(),
                 Executors.defaultThreadFactory(),
                 ThreadPoolExecutor.DiscardOldestPolicy())
@@ -113,8 +129,103 @@ class MainActivityViewModel : ViewModel() {
         }).start()
     }
 
+    fun getData4Database() {
+        Thread(Runnable {
+            val list = DAOFactory.getPdfDocumentDAO().queryPath()
+            list.forEach {
+                Zog.log(0, it)
+            }
+            mPdfPathList.clear()
+            mPdfPathList.addAll(list)
+            mPdfPathLiveData.postValue(mPdfPathList)
+        }).start()
+    }
+
+    @SuppressLint("EnqueueWork")
+    fun quicklyScanPdf(pathList: List<String>?) {
+        tempPdfList.clear()
+        val pathSet: ArraySet<String> = ArraySet()
+        val newPathList=getPdfPath(pathList)
+        newPathList.forEach {
+            Zog.log(0, "pathSet $it")
+            pathSet.add(it)
+        }
+        mPdfPathList.clear()
+        mPdfPathList.addAll(pathSet)
+        mPdfPathList.forEach {
+            Zog.log(0, "pathList $it")
+        }
+        val chain = ArrayList<WorkContinuation>()
+        ScanPdfWorker.model = this
+        ScanPdfOverWorker.model = this
+        for (i in 0 until mPdfPathList.size step 2) {
+            val workManager = WorkManager.getInstance()
+            var workContinuation: WorkContinuation
+            val worker = OneTimeWorkRequestBuilder<ScanPdfWorker>()
+                    .setInputData(Data.Builder().putString(Constants.SCAN_PATH, mPdfPathList[i]).build())
+                    .build()
+            var worker2: OneTimeWorkRequest
+            workContinuation = workManager.beginWith(worker)
+            if (i + 1 < mPdfPathList.size) {
+                worker2 = OneTimeWorkRequestBuilder<ScanPdfWorker>()
+                        .setInputData(Data.Builder().putString(Constants.SCAN_PATH, mPdfPathList[i + 1]).build())
+                        .build()
+                workContinuation.then(worker2)
+            }
+            chain.add(workContinuation)
+        }
+        WorkContinuation.combine(chain)
+                .then(OneTimeWorkRequestBuilder<ScanPdfOverWorker>().build())
+                .enqueue()
+    }
+
     fun savePdfCount2SP() {
         SPUtils(Constants.SP_NAME).putInt(Constants.PDF_COUNT, mPdfListLiveData.value!!.size)
+    }
+
+    fun getPdfPath(pathList: List<String>?):ArrayList<String>{
+        val newPathList = ArrayList<String>()
+        pathList?.forEach { it ->
+            newPathList.add(it.substring(0, it.indexOfLast {
+                it == '/'
+            } + 1))
+        }
+        return newPathList
+    }
+
+    class ScanPdfWorker(context: Context, workerParameters: WorkerParameters) : Worker(context, workerParameters) {
+        companion object {
+            var model: ViewModel? = null
+        }
+
+        override fun doWork(): Result {
+            if (model is MainActivityViewModel) {
+                val modelTemp = model as MainActivityViewModel
+                modelTemp.scanPdf(inputData.getString(Constants.SCAN_PATH)!!, true)
+            }
+            return Result.success()
+        }
+    }
+
+    class ScanPdfOverWorker(context: Context, workerParameters: WorkerParameters) : Worker(context, workerParameters) {
+        companion object {
+            var model: ViewModel? = null
+        }
+
+        override fun doWork(): Result {
+            if (model is MainActivityViewModel) {
+                val modelTemp = model as MainActivityViewModel
+                Zog.log(0, "ScanPdfOverWorker isScanOver")
+                modelTemp.isScanOver.postValue(true)
+                if (modelTemp.tempPdfList.size > 0) {
+                    modelTemp.mPdfListLiveData.postValue(modelTemp.tempPdfList.toMutableList())
+                }
+            }
+            ScanPdfOverWorker.model = null
+            ScanPdfWorker.model = null
+            Zog.log(0, "ScanPdfOverWorker")
+            return Result.success()
+        }
     }
 
 }

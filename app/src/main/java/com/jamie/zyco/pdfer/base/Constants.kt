@@ -10,6 +10,7 @@ class Constants {
         const val PDF_COUNT = "PDF_COUNT"
         const val DIR_COUNT = "DIR_COUNT"
         const val ACTION_SCANNER = "ACTION_SCANNER"
+        const val SCAN_PATH = "SCAN_PATH"
         @JvmField
         val CPU_COUNT = Runtime.getRuntime().availableProcessors()
         @JvmField

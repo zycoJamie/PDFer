@@ -6,4 +6,5 @@ interface MainActivityClickHandler {
     fun add(view: View)
     fun switchList()
     fun findPDF()
+    fun quicklyFound()
 }

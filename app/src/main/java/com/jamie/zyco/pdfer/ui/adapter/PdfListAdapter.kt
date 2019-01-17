@@ -1,18 +1,21 @@
 package com.jamie.zyco.pdfer.ui.adapter
 
+import android.content.Context
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.jamie.zyco.pdfer.MainActivity
 import com.jamie.zyco.pdfer.databinding.ItemPdfListBinding
 import com.jamie.zyco.pdfer.databinding.RvHeaderBinding
 import com.jamie.zyco.pdfer.model.entity.db.PdfDocument
+import com.jamie.zyco.pdfer.utils.Zog
 import java.util.*
 import kotlin.collections.ArrayList
 
-class PdfListAdapter(var resId: Int, var data: MutableList<PdfDocument> = ArrayList()) : RecyclerView.Adapter<PdfListAdapter.Holder>() {
+class PdfListAdapter(var resId: Int, var data: MutableList<PdfDocument> = ArrayList(), var context: Context) : RecyclerView.Adapter<PdfListAdapter.Holder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, type: Int): Holder {
         val binding: ItemPdfListBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), resId, parent, false)
@@ -34,7 +37,10 @@ class PdfListAdapter(var resId: Int, var data: MutableList<PdfDocument> = ArrayL
                 }
             }
             is RvHeaderBinding -> {
-
+                if (context is MainActivity) {
+                    Zog.log(0, "header onBindViewHolder")
+                    holder.binding.click = context as MainActivity
+                }
             }
         }
     }

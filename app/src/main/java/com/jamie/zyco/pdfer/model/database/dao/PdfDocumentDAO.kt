@@ -16,4 +16,7 @@ interface PdfDocumentDAO {
     @Query("Select * from pdf")
     fun queryAll(): LiveData<MutableList<PdfDocument>>
 
+    @Query("Select DATA from pdf")
+    fun queryPath(): List<String>
+
 }
