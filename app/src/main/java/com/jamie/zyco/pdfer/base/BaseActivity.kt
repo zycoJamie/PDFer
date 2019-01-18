@@ -29,4 +29,8 @@ abstract class BaseActivity<T : ViewDataBinding> : AppCompatActivity() {
     protected fun <V : AppCompatActivity> go2Activity(context: Context, clazz: Class<V>) {
         startActivity(Intent(context, clazz))
     }
+
+    protected fun go2Activity(intent: Intent) {
+        startActivity(intent)
+    }
 }

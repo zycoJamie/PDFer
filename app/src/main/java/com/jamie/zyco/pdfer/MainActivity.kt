@@ -1,6 +1,7 @@
 package com.jamie.zyco.pdfer
 
 import android.arch.lifecycle.Observer
+import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.support.v7.widget.LinearLayoutManager
@@ -13,6 +14,7 @@ import com.jamie.zyco.pdfer.base.BaseActivity
 import com.jamie.zyco.pdfer.base.Constants
 import com.jamie.zyco.pdfer.databinding.ActivityMainBinding
 import com.jamie.zyco.pdfer.listener.clickhandler.MainActivityClickHandler
+import com.jamie.zyco.pdfer.ui.activity.PdfViewActivity
 import com.jamie.zyco.pdfer.ui.adapter.HeaderWrapperAdapter
 import com.jamie.zyco.pdfer.ui.adapter.MainViewPagerAdapter
 import com.jamie.zyco.pdfer.ui.adapter.PdfListAdapter
@@ -190,5 +192,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
             Zog.log(0, "***quicklyScanPdf***")
             viewModel.quicklyScanPdf(it?.toList())
         })
+    }
+
+    override fun viewPdf(path: String) {
+        Zog.log(0, "main-viewPdf")
+        val intent = Intent(this@MainActivity, PdfViewActivity::class.java)
+        intent.putExtra(Constants.ITEM_PDF_PATH, path)
+        go2Activity(intent)
+
     }
 }

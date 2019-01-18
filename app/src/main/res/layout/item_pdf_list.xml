@@ -2,6 +2,7 @@
 <layout>
     <data>
         <import type="com.jamie.zyco.pdfer.model.entity.db.PdfDocument" />
+        <import type="com.jamie.zyco.pdfer.listener.clickhandler.MainActivityClickHandler"/>
         <variable
             name="pdf"
             type="PdfDocument" />
@@ -9,6 +10,10 @@
         <variable
             name="date"
             type="String" />
+
+        <variable
+            name="click"
+            type="MainActivityClickHandler"/>
     </data>
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -18,6 +23,7 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/d10"
         android:background="@android:color/white"
+        android:onClick="@{(v)->click.viewPdf(pdf.path)}"
         tools:ignore="RtlHardcoded">
 
         <ImageView

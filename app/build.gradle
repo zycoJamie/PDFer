@@ -46,6 +46,7 @@ dependencies {
     implementation rootProject.ext.dependency["flyco-tabLayout"]
     implementation rootProject.ext.dependency["design"]
     implementation rootProject.ext.dependency["AndPermission"]
+    implementation rootProject.ext.dependency["AndroidPdfViewer"]
 }
 repositories {
     mavenCentral()

@@ -35,6 +35,9 @@ class PdfListAdapter(var resId: Int, var data: MutableList<PdfDocument> = ArrayL
                             "${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}"
                     holder.binding.date = dateStr
                 }
+                if (context is MainActivity) {
+                    holder.binding.click = context as MainActivity
+                }
             }
             is RvHeaderBinding -> {
                 if (context is MainActivity) {
