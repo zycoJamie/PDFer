@@ -21,7 +21,7 @@ class MyRecyclerView : RecyclerView {
     private var mHeaderHeight = 0
     private val mThreshold = 400  //header最大高度
     private val mAutoScrollThreshold = 150 //触发header自动滑动的最大高度
-    private var isExtension = false
+    var isExtension = false
     private var mBackByFinger = false
     private var isFirstDragging = true
     //问题：当header处于展开状态，手指上划，滑动距离超过header高度 通过scroller动态缩小header高度时 出现了向下回弹
@@ -81,10 +81,7 @@ class MyRecyclerView : RecyclerView {
                     isExtension = false
                 }
                 if (mHeaderHeight in mAutoScrollThreshold until mThreshold && !mBackByFinger) {
-                    Zog.log(0, TAG, "start auto pull $mHeaderHeight ****")
-                    mScroller.startScroll(0, mHeaderHeight, 0, mThreshold - mHeaderHeight, 500)
-                    Zog.log(0, TAG, "finalY ${mScroller.finalY}")
-                    invalidate()
+                    autoPull()
                 }
                 if (mHeaderHeight in 1 until mAutoScrollThreshold || mBackByFinger) {
                     val layoutManager = layoutManager as LinearLayoutManager
@@ -94,18 +91,29 @@ class MyRecyclerView : RecyclerView {
                         val layoutParams = header?.layoutParams
                         layoutParams?.height = 0
                         header?.layoutParams = layoutParams
-
+                        mHeaderHeight = 0
                     } else {
-                        Zog.log(0, TAG, "start auto back $mHeaderHeight ****")
-                        mScroller.startScroll(0, mHeaderHeight, 0, -mHeaderHeight, 500)
-                        Zog.log(0, TAG, "finalY ${mScroller.finalY}")
-                        invalidate()
+                        autoBack()
                     }
                     mBackByFingerDistance = 0
                 }
             }
         }
         return super.onTouchEvent(e)
+    }
+
+    fun autoPull() {
+        Zog.log(0, TAG, "start auto pull $mHeaderHeight ****")
+        mScroller.startScroll(0, mHeaderHeight, 0, mThreshold - mHeaderHeight, 500)
+        Zog.log(0, TAG, "finalY ${mScroller.finalY}")
+        invalidate()
+    }
+
+    fun autoBack() {
+        Zog.log(0, TAG, "start auto back $mHeaderHeight ****")
+        mScroller.startScroll(0, mHeaderHeight, 0, -mHeaderHeight, 500)
+        Zog.log(0, TAG, "finalY ${mScroller.finalY}")
+        invalidate()
     }
 
     private fun move(e: MotionEvent) {

@@ -3,10 +3,8 @@ package com.jamie.zyco.pdfer.ui.adapter
 import android.databinding.DataBindingUtil
 import android.support.v7.widget.RecyclerView
 import android.util.SparseArray
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.jamie.zyco.pdfer.R
 import com.jamie.zyco.pdfer.ui.adapter.PdfListAdapter.Holder
 import com.jamie.zyco.pdfer.utils.Zog
 
@@ -63,5 +61,4 @@ class HeaderWrapperAdapter(adapter: RecyclerView.Adapter<Holder>) : RecyclerView
     }
 
     override fun getItemCount() = getHeaderCount() + getRealCount()
-
 }

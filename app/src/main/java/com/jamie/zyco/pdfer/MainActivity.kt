@@ -67,21 +67,25 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
             }
         })
         updatePdfList()
+        viewModel.get4Database()
     }
 
     private fun nonePdfLayout() {
-        Zog.log(0, "none pdf")
-        mViewStub.visibility = View.VISIBLE //viewStub延迟加载布局，当加载一次过后，就会被替换掉，因此不能多次加载(Visible)，否则会报IllegalStateException
-        mFindPDF.setOnClickListener {
-            findPDF()
-        }
-        mViewPager.visibility = View.GONE
-        mBottomLl.visibility = View.GONE
+        viewModel.mPdfListLiveData.observe(this@MainActivity, Observer {
+            if (it!!.isEmpty()) {
+                Zog.log(0, "none pdf")
+                mViewStub.visibility = View.VISIBLE //viewStub延迟加载布局，当加载一次过后，就会被替换掉，因此不能多次加载(Visible)，否则会报IllegalStateException
+                mFindPDF.setOnClickListener {
+                    findPDF()
+                }
+                mViewPager.visibility = View.GONE
+                mBottomLl.visibility = View.GONE
+            }
+        })
     }
 
     private fun hasPdfLayout() {
         Zog.log(0, "exist pdf")
-        viewModel.get4Database()
         mViewStub?.visibility = View.GONE
         mViewPager.visibility = View.VISIBLE
         mBottomLl.visibility = View.VISIBLE
@@ -92,16 +96,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
             Zog.log(0, "hide none pdf layout")
             showTab()
             ((mCurrentView?.adapter as HeaderWrapperAdapter).mInnerAdapter as PdfListAdapter).data = it!!
-            mCurrentView?.adapter?.notifyDataSetChanged()
+            mCurrentView?.postDelayed({
+                mCurrentView?.adapter?.notifyDataSetChanged()
+            }, 1000)
             mFrameContainer?.visibility = View.GONE
             mViewPager.visibility = View.VISIBLE
             mBottomLl.visibility = View.VISIBLE
-            viewModel.save2Database()
-            viewModel.savePdfCount2SP()
         })
     }
 
     private fun showTab() {
+        mTitleList!!.clear()
+        mViewList?.clear()
         for (i in 0 until Constants.gDirCount) {
             mViewList?.add(LayoutInflater.from(this).inflate(R.layout.item_view_pager, mViewPager, false))
         }
@@ -128,11 +134,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
         return headerView
     }
 
-    private fun showProgressBar(){
-        if (mProgressBarLayout==null) {
+    private fun showProgressBar() {
+        if (mProgressBarLayout == null) {
             mViewStubProgressBar.visibility = View.VISIBLE
         } else {
             mProgressBarLayout.visibility = View.VISIBLE
+        }
+    }
+
+    private fun indexHeaderAutoBack() {
+        if (!mViewList!!.isEmpty()) {
+            val firstRecyclerView = mViewList!![0].findViewById(R.id.mPdfRv) as MyRecyclerView
+            firstRecyclerView.autoBack()
+            firstRecyclerView.isExtension = false
         }
     }
 
@@ -155,6 +169,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
                 .onGranted {
                     //sendBroadcast(Intent(Intent.ACTION_MEDIA_MOUNTED)) android 4.4以前可发送此广播通知扫描文件，4.4以上则只能是系统app才能发送此广播
                     showProgressBar()
+                    indexHeaderAutoBack()
                     mDrawer.setIntercepted(true)
                     Zog.log(1, "${System.currentTimeMillis()}")
                     viewModel.scheduleScanPdf(Environment.getExternalStorageDirectory().path)
@@ -168,10 +183,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
     override fun quicklyFound() {
         Zog.log(0, "main-quicklyFound")
         showProgressBar()
+        indexHeaderAutoBack()
         mDrawer.setIntercepted(true)
         viewModel.getData4Database()
         viewModel.mPdfPathLiveData.observe(this@MainActivity, Observer {
-            Zog.log(0,"***quicklyScanPdf***")
+            Zog.log(0, "***quicklyScanPdf***")
             viewModel.quicklyScanPdf(it?.toList())
         })
     }
