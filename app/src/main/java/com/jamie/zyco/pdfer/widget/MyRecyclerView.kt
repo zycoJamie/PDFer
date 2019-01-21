@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.view.VelocityTracker
 import android.view.View
 import android.widget.Scroller
 import com.jamie.zyco.pdfer.ui.adapter.HeaderWrapperAdapter
@@ -45,6 +46,7 @@ class MyRecyclerView : RecyclerView {
     override fun onTouchEvent(e: MotionEvent?): Boolean {
         when (e!!.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                Zog.log(0, TAG, "down")
                 initPointY = e.rawY
                 isFirstDragging = true
                 if (!mScroller.isFinished) {
@@ -153,6 +155,21 @@ class MyRecyclerView : RecyclerView {
             smoothScrollBy(0, mScroller.currY - lastY!!)
             postInvalidate()
         }
+    }
+
+    override fun onInterceptTouchEvent(e: MotionEvent?): Boolean {
+        when (e!!.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                val itemView = getChildAt(0)
+                if (!isExtension && itemView != null && itemView.top >= 0) {
+                    return true
+                }
+                if (isExtension && e.rawY >= mHeaderHeight) {
+                    return true
+                }
+            }
+        }
+        return super.onInterceptTouchEvent(e)
     }
 
     override fun onDetachedFromWindow() {

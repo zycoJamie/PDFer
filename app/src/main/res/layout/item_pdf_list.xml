@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
+
     <data>
+
         <import type="com.jamie.zyco.pdfer.model.entity.db.PdfDocument" />
-        <import type="com.jamie.zyco.pdfer.listener.clickhandler.MainActivityClickHandler"/>
+
+        <import type="com.jamie.zyco.pdfer.listener.clickhandler.MainActivityClickHandler" />
+
         <variable
             name="pdf"
             type="PdfDocument" />
@@ -13,17 +17,18 @@
 
         <variable
             name="click"
-            type="MainActivityClickHandler"/>
+            type="MainActivityClickHandler" />
     </data>
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/mItemContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/d10"
         android:background="@android:color/white"
         android:onClick="@{(v)->click.viewPdf(pdf.path)}"
+        android:padding="@dimen/d10"
         tools:ignore="RtlHardcoded">
 
         <ImageView
@@ -41,13 +46,13 @@
             android:layout_width="@dimen/d0"
             android:layout_height="@dimen/d25"
             android:layout_marginStart="@dimen/d10"
+            android:ellipsize="end"
             android:gravity="left"
+            android:maxLines="1"
             android:text="@{pdf.path.substring(pdf.path.lastIndexOf(`/`)+1)}"
             android:textColor="@color/black_255"
-            android:maxLines="1"
-            android:ellipsize="end"
-            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toRightOf="@id/iv_pdf"
+            app:layout_constraintRight_toRightOf="parent"
             tools:text="Android 之美.pdf" />
 
 
@@ -61,8 +66,8 @@
             android:textColor="@color/black_255"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintRight_toLeftOf="@id/mPdfOpenTimeTv"
             app:layout_constraintLeft_toRightOf="@id/iv_pdf"
+            app:layout_constraintRight_toLeftOf="@id/mPdfOpenTimeTv"
             app:layout_constraintTop_toBottomOf="@id/mPdfNameTv"
             tools:text="1000MB" />
 
@@ -76,10 +81,11 @@
             android:text="@{date}"
             android:textColor="@color/black_255"
             app:layout_constraintHorizontal_weight="3"
-            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toRightOf="@id/mPdfSizeTv"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/mPdfNameTv"
             tools:text="2019年1月8日12:37" />
+
 
     </android.support.constraint.ConstraintLayout>
 </layout>
