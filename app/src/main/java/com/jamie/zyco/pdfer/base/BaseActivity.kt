@@ -8,6 +8,7 @@ import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
 
 abstract class BaseActivity<T : ViewDataBinding> : AppCompatActivity() {
 
@@ -32,5 +33,16 @@ abstract class BaseActivity<T : ViewDataBinding> : AppCompatActivity() {
 
     protected fun go2Activity(intent: Intent) {
         startActivity(intent)
+    }
+
+    protected fun toast(msg: String, length: Int) {
+        when (length) {
+            Toast.LENGTH_SHORT -> {
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            }
+            Toast.LENGTH_LONG -> {
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }
