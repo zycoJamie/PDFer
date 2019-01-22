@@ -162,7 +162,7 @@ class MyRecyclerView : RecyclerView {
                 }
             }
             MotionEvent.ACTION_MOVE -> {
-                if (isExtension && e.rawY - initPointY < 0) {
+                if (isExtension && e.rawY - initPointY < 0 && e.rawY > mThreshold) {
                     return true
                 }
             }

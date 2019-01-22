@@ -98,9 +98,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
             Zog.log(0, "hide none pdf layout")
             showTab()
             ((mCurrentView?.adapter as HeaderWrapperAdapter).mInnerAdapter as PdfListAdapter).data = it!!
-            mCurrentView?.postDelayed({
-                mCurrentView?.adapter?.notifyDataSetChanged()
-            }, 1000)
             mFrameContainer?.visibility = View.GONE
             mViewPager.visibility = View.VISIBLE
             mBottomLl.visibility = View.VISIBLE

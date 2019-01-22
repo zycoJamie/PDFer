@@ -118,9 +118,7 @@ class MainActivityViewModel : ViewModel() {
 
     fun save2Database() {
         Thread(Runnable {
-            tempPdfList.forEach {
-                DAOFactory.getPdfDocumentDAO().insertAll(it)
-            }
+            DAOFactory.getPdfDocumentDAO().insertAll(*tempPdfList.toTypedArray()) //展开array
         }).start()
     }
 
@@ -154,9 +152,6 @@ class MainActivityViewModel : ViewModel() {
         }
         mPdfPathList.clear()
         mPdfPathList.addAll(pathSet)
-        mPdfPathList.forEach {
-            Zog.log(0, "pathList $it")
-        }
         val chain = ArrayList<WorkContinuation>()
         ScanWorker.ScanPdfWorker.model = this
         ScanWorker.ScanPdfOverWorker.model = this
