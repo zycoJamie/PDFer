@@ -5,6 +5,7 @@ import android.content.Context
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
@@ -46,17 +47,12 @@ class MyRecyclerView : RecyclerView {
     override fun onTouchEvent(e: MotionEvent?): Boolean {
         when (e!!.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                Zog.log(0, TAG, "down")
-                initPointY = e.rawY
-                isFirstDragging = true
-                if (!mScroller.isFinished) {
-                    mScroller.forceFinished(true) //当scroller到达final坐标后，并未立即结束
-                }
+                Zog.log(0, TAG, "onTouchEvent down")
             }
             MotionEvent.ACTION_MOVE -> {
                 val layoutManager = layoutManager as LinearLayoutManager
                 val headerWrapperAdapter = adapter as HeaderWrapperAdapter
-                if (scrollState == RecyclerView.SCROLL_STATE_DRAGGING
+                if ((scrollState == RecyclerView.SCROLL_STATE_DRAGGING || scrollState == SCROLL_STATE_IDLE)
                         && layoutManager.findFirstCompletelyVisibleItemPosition() == 0 && e.rawY - initPointY > 0
                         && mHeaderHeight <= mThreshold
                         && headerWrapperAdapter.getHeaderCount() > 0
@@ -68,7 +64,6 @@ class MyRecyclerView : RecyclerView {
                         isFirstDragging = false
                     }
                     Zog.log(0, TAG, "pull")
-                    Zog.log(0, TAG, "e.rawY:${e.rawY} initPointY:$initPointY")
                     move(e)
                 }
                 if (isExtension && e.rawY - initPointY < 0 && headerWrapperAdapter.getHeaderCount() > 0) {
@@ -123,7 +118,6 @@ class MyRecyclerView : RecyclerView {
         if (!isExtension) {
             mBackByFinger = false
             mHeaderHeight = ((e.rawY - initPointY) / mFriction).toInt()
-            Zog.log(0, TAG, "header height:$mHeaderHeight before")
             val header: View? = headerWrapperAdapter.getHeaderItem(0)
             val layoutParams = header?.layoutParams
             if (mHeaderHeight >= mThreshold) {
@@ -132,7 +126,6 @@ class MyRecyclerView : RecyclerView {
             if (mHeaderHeight < 0) {
                 mHeaderHeight = 0
             }
-            Zog.log(0, TAG, "header height:$mHeaderHeight after")
             layoutParams?.height = mHeaderHeight
             header?.layoutParams = layoutParams
             smoothScrollToPosition(0)
@@ -143,7 +136,6 @@ class MyRecyclerView : RecyclerView {
 
     override fun computeScroll() {
         if (mScroller.computeScrollOffset()) {
-            Zog.log(0, TAG, "computeScroll ${mScroller.isFinished}")
             val headerWrapperAdapter = adapter as HeaderWrapperAdapter
             val header: View? = headerWrapperAdapter.getHeaderItem(0)
             val layoutParams = header?.layoutParams
@@ -151,26 +143,33 @@ class MyRecyclerView : RecyclerView {
             layoutParams?.height = mScroller.currY
             mHeaderHeight = mScroller.currY
             header?.layoutParams = layoutParams
-            Zog.log(0, TAG, "${mScroller.currY}-$lastY")
             smoothScrollBy(0, mScroller.currY - lastY!!)
             postInvalidate()
         }
     }
 
+    /**
+     * 问题：自定义RecyclerView 当为item添加单击事件后，自定义RecyclerView的touch down事件被item单击事件覆盖，导致部分在down事件中重置的参数未能重置
+     * 解决：在onInterceptTouchEvent的down事件中将部分参数重置
+     */
     override fun onInterceptTouchEvent(e: MotionEvent?): Boolean {
         when (e!!.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                val itemView = getChildAt(0)
-                if (!isExtension && itemView != null && itemView.top >= 0) {
-                    return true
+                initPointY = e.rawY
+                isFirstDragging = true
+                if (!mScroller.isFinished) {
+                    mScroller.forceFinished(true) //当scroller到达final坐标后，并未立即结束
                 }
-                if (isExtension && e.rawY >= mHeaderHeight) {
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (isExtension && e.rawY - initPointY < 0) {
                     return true
                 }
             }
         }
         return super.onInterceptTouchEvent(e)
     }
+
 
     override fun onDetachedFromWindow() {
         mScroller.forceFinished(true)
