@@ -14,6 +14,8 @@ data class PdfDocument(
         var size: Float,
         @ColumnInfo(name = "OPEN")
         var lastOpen: Long?,
+        @ColumnInfo(name = "PAGE")
+        var defaultPage: Int,
         @ColumnInfo(name = "COVER")
         var cover: String?
 )

@@ -191,10 +191,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MainActivityClickHandl
         })
     }
 
-    override fun viewPdf(path: String) {
+    override fun viewPdf(path: String, page: Int) {
         Zog.log(0, "main-viewPdf")
         val intent = Intent(this@MainActivity, PdfViewActivity::class.java)
         intent.putExtra(Constants.ITEM_PDF_PATH, path)
+        intent.putExtra(Constants.DEFAULT_PAGE, page)
         go2Activity(intent)
 
     }

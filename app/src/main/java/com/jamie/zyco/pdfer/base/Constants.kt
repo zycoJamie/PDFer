@@ -18,6 +18,7 @@ class Constants {
         const val ACTION_SCANNER = "ACTION_SCANNER"
         const val SCAN_PATH = "SCAN_PATH"
         const val ITEM_PDF_PATH = "ITEM_PDF_PATH"
+        const val DEFAULT_PAGE = "DEFAULT_PAGE"
 
     }
 }

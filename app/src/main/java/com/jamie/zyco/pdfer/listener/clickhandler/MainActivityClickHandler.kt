@@ -7,5 +7,5 @@ interface MainActivityClickHandler {
     fun switchList()
     fun findPDF()
     fun quicklyFound()
-    fun viewPdf(path: String)
+    fun viewPdf(path: String, page: Int)
 }

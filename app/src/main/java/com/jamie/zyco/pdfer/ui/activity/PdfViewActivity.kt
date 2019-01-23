@@ -2,6 +2,7 @@ package com.jamie.zyco.pdfer.ui.activity
 
 import android.os.Bundle
 import com.github.barteksc.pdfviewer.link.DefaultLinkHandler
+import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle
 import com.github.barteksc.pdfviewer.util.FitPolicy
 import com.jamie.zyco.pdfer.R
 import com.jamie.zyco.pdfer.base.BaseActivity
@@ -21,6 +22,10 @@ class PdfViewActivity : BaseActivity<ActivityPdfViewBinding>() {
         intent.getStringExtra(Constants.ITEM_PDF_PATH)
     }
 
+    private val mPdfDefaultPage by lazy {
+        intent.getIntExtra(Constants.DEFAULT_PAGE,0)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(viewModel.lifecycleWatcher)
@@ -29,29 +34,37 @@ class PdfViewActivity : BaseActivity<ActivityPdfViewBinding>() {
     }
 
     override fun initView() {
-
+        configuration()
     }
 
     override fun initData() {
         mPdfView.fromFile(File(mPdfPath))
-                .defaultPage(0)
-                .enableSwipe(true)
-                .swipeHorizontal(true)
+                .defaultPage(mPdfDefaultPage)
+                .enableSwipe(true) //允许使用滑动阻止更改页面
                 .enableDoubletap(true)
                 .enableAnnotationRendering(true)
                 .enableAntialiasing(true)
                 .spacing(0)
-                .autoSpacing(true)
-                .linkHandler(DefaultLinkHandler(mPdfView))
                 .pageFitPolicy(FitPolicy.WIDTH)
+                .nightMode(false)
+                .autoSpacing(true) //类似viewpager
                 .pageFling(true)
                 .pageSnap(true)
-                .nightMode(false)
+                .swipeHorizontal(true)
+                .linkHandler(DefaultLinkHandler(mPdfView))
+                .scrollHandle(DefaultScrollHandle(this@PdfViewActivity))
                 .onError {
                     toast(getString(R.string.pdf_view_format_error), 0)
                 }
                 .load()
 
+    }
+
+    private fun configuration(){
+        mPdfView.useBestQuality(true)
+        mPdfView.minZoom=1f
+        mPdfView.midZoom=1f
+        mPdfView.maxZoom=1.5f
     }
 
     override fun getLayoutId() = R.layout.activity_pdf_view
