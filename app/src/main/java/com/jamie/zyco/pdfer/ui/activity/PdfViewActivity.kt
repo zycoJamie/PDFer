@@ -1,18 +1,26 @@
 package com.jamie.zyco.pdfer.ui.activity
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.widget.PopupWindow
 import com.github.barteksc.pdfviewer.link.DefaultLinkHandler
 import com.github.barteksc.pdfviewer.util.FitPolicy
 import com.jamie.zyco.pdfer.R
 import com.jamie.zyco.pdfer.base.BaseActivity
 import com.jamie.zyco.pdfer.base.Constants
 import com.jamie.zyco.pdfer.databinding.ActivityPdfViewBinding
+import com.jamie.zyco.pdfer.listener.clickhandler.PdfViewActivityClickHandler
 import com.jamie.zyco.pdfer.pdfcustom.MyHorScrollHandle
+import com.jamie.zyco.pdfer.utils.ConvertUtils
 import com.jamie.zyco.pdfer.viewmodel.PdfViewActivityViewModel
 import kotlinx.android.synthetic.main.activity_pdf_view.*
 import java.io.File
 
-class PdfViewActivity : BaseActivity<ActivityPdfViewBinding>() {
+class PdfViewActivity : BaseActivity<ActivityPdfViewBinding>(), PdfViewActivityClickHandler {
 
     private val viewModel by lazy {
         obtainViewModel(this@PdfViewActivity, PdfViewActivityViewModel::class.java)
@@ -23,7 +31,7 @@ class PdfViewActivity : BaseActivity<ActivityPdfViewBinding>() {
     }
 
     private val mPdfDefaultPage by lazy {
-        intent.getIntExtra(Constants.DEFAULT_PAGE,0)
+        intent.getIntExtra(Constants.DEFAULT_PAGE, 0)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +61,9 @@ class PdfViewActivity : BaseActivity<ActivityPdfViewBinding>() {
                 .swipeHorizontal(true)
                 .linkHandler(DefaultLinkHandler(mPdfView))
                 .scrollHandle(MyHorScrollHandle(this@PdfViewActivity))
+                .onLongPress {
+                    showPop(it)
+                }
                 .onError {
                     toast(getString(R.string.pdf_view_format_error), 0)
                 }
@@ -60,12 +71,24 @@ class PdfViewActivity : BaseActivity<ActivityPdfViewBinding>() {
 
     }
 
-    private fun configuration(){
+    private fun configuration() {
         mPdfView.useBestQuality(true)
-        mPdfView.minZoom=1f
-        mPdfView.midZoom=1f
-        mPdfView.maxZoom=1.5f
+        mPdfView.minZoom = 1f
+        mPdfView.midZoom = 1f
+        mPdfView.maxZoom = 1.5f
     }
 
     override fun getLayoutId() = R.layout.activity_pdf_view
+
+    /** PdfViewActivityClickHandler **/
+
+    override fun showPop(event: MotionEvent) {
+        val contentView = LayoutInflater.from(this@PdfViewActivity).inflate(R.layout.popup_pdf_tag, mPdfView, false)
+        val pop = PopupWindow(contentView, ConvertUtils.px2dp(1000f), ConvertUtils.px2dp(1000f), true)
+        pop.isTouchable = true
+        pop.isOutsideTouchable = true
+        pop.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        pop.showAsDropDown(mPdfView, event.rawX.toInt(), event.rawY.toInt())
+
+    }
 }

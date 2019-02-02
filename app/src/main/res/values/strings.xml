@@ -12,4 +12,5 @@
 
     <!-- pdf view -->
     <string name="pdf_view_format_error">该文件的格式看不懂鸭</string>
+    <string name="pdf_popup_text">绘制</string>
 </resources>

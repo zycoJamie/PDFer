@@ -2,8 +2,10 @@
 <resources>
 
     <!-- sp -->
+    <dimen name="s20">20sp</dimen>
     <dimen name="s15">15sp</dimen>
     <dimen name="s13">13sp</dimen>
+    <dimen name="s10">10sp</dimen>
 
 
     <dimen name="d100">100dp</dimen>

@@ -65,7 +65,7 @@ class MainActivityViewModel : ViewModel() {
                     if (f.isFile && f.path.endsWith(".pdf", true)) {
                         Zog.log(1, "quickly scan ${f.path}")
                         val size = (Math.floor((f.length() * 100 / (1024f * 1024f)).toDouble())) / 100f
-                        val document = PdfDocument(f.path, size.toFloat(), null, 1, null)
+                        val document = PdfDocument(f.path, size.toFloat(), null, 0, null)
                         tempPdfList.add(document)
                     }
                 } else {
@@ -75,7 +75,7 @@ class MainActivityViewModel : ViewModel() {
         } else if (file.path.endsWith(".pdf", true)) {
             Zog.log(1, file.path)
             val size = (Math.floor((file.length() * 100 / (1024f * 1024f)).toDouble())) / 100f
-            val document = PdfDocument(file.path, size.toFloat(), null, 1, null)
+            val document = PdfDocument(file.path, size.toFloat(), null, 0, null)
             tempPdfList.add(document)
         }
 
